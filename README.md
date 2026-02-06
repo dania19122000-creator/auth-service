@@ -96,3 +96,31 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+
+
+
+
+
+_______________________________________________________________________________________________________________________________________________________________________________________________
+
+
+
+
+
+
+
+
+
+Part 2
+If this authentication service needed to scale to a much higher load (for example, thousands of registrations per second or tens of thousands of login requests per second), the first requirement would be to keep the service stateless. Using JWT allows any instance of the service to handle any request, which makes horizontal scaling behind a load balancer straightforward.
+PostgreSQL would remain the primary source of truth for user data, with proper indexing on frequently queried fields such as username or email. To scale reads, database read replicas could be introduced, while writes would continue to go to the primary instance. Redis would be used as a shared cache for frequently accessed data and for short lived data such as rate limiting counters.
+At higher traffic levels, rate limiting would be applied at the edge (API gateway or reverse proxy) to protect the service from abuse. Expensive operations like password hashing would be carefully tuned, and observability would be added via structured logging and metrics to monitor latency, error rates, and cache hit ratios. This approach allows the service to scale linearly by adding more instances without changing the core architecture.
+
+Part 3
+Social login can be implemented using the OAuth 2.0 authorization code flow with providers such as Google or GitHub. The client application first redirects the user to the external provider’s authentication page. After successful authentication, the provider redirects the user back to the auth service with an authorization code.
+The auth service exchanges this authorization code for an access token by calling the provider’s token endpoint. Using this token, the service fetches the user’s profile information (for example, email and provider specific user ID). The service then either creates a new local user account or links the social account to an existing user based on the email address.
+Once the user is identified locally, the service issues its own JWT, just like in the regular username/password login flow. This keeps the internal authentication model consistent and ensures that downstream services do not need to know whether the user authenticated via social login or standard credentials.
+
+
+
